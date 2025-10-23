@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medicine Finder - Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-50 font-inter">
+    <nav class="bg-blue-700 text-white sticky top-0 z-50 shadow-lg">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <h1 class="text-2xl font-bold tracking-tight">Medicine Finder</h1>
+        <div class="space-x-6 flex items-center">
+          <a
+            href="{{ url_for('index') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Home</a
+          >
+          <a
+            href="{{ url_for('search_medicine') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Search</a
+          >
+          <a
+            href="{{ url_for('chatbot') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Chatbot</a
+          >
+          <a
+            href="{{ url_for('cart') }}"
+            class="hover:text-blue-200 transition duration-300 relative"
+          >
+            Cart
+            <span
+              id="cart-count"
+              class="absolute -top-2 -right-4 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+              >0</span
+            >
+          </a>
+          {% if current_user.is_authenticated %}
+          <a
+            href="{{ url_for('profile') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >{{ current_user.email }}</a
+          >
+          <a
+            href="{{ url_for('logout') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Logout</a
+          >
+          {% if current_user.is_admin %}
+          <a
+            href="{{ url_for('admin') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Admin</a
+          >
+          {% endif %} {% else %}
+          <a
+            href="{{ url_for('login') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Login</a
+          >
+          <a
+            href="{{ url_for('signup') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Signup</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    <div class="container mx-auto py-12 px-4">
+      <h2 class="text-4xl font-extrabold text-blue-700 text-center mb-8">
+        Chat with Our AI Assistant
+      </h2>
+      <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <div
+          id="chat-container"
+          class="h-96 overflow-y-auto mb-6 p-4 bg-gray-100 rounded-lg space-y-4"
+        ></div>
+        <div class="relative flex">
+          <input
+            type="text"
+            id="chat-input"
+            placeholder="Ask about medicines or health..."
+            class="w-full p-4 border-2 border-blue-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          />
+          <button
+            id="send-btn"
+            class="absolute right-0 top-0 bg-blue-600 text-white p-4 rounded-full hover:bg-blue-700 transition duration-300"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+    <footer
+      class="bg-blue-900 text-white text-center py-6 fixed bottom-0 left-0 w-full shadow-md"
+    >
+      <p>&copy; 2025 Medicine Finder. All rights reserved.</p>
+    </footer>
+    <script>
+      let conversationHistory = [];
+
+      function addMessage(role, content) {
+        const chatContainer = document.getElementById("chat-container");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `p-4 rounded-lg max-w-[80%] ${
+          role === "user"
+            ? "bg-blue-600 text-white ml-auto"
+            : "bg-blue-100 text-gray-800 mr-auto"
+        } transform transition-all duration-300 animate-slide-in`;
+        messageDiv.innerHTML = `<p class="text-sm"><strong>${
+          role === "user" ? "You" : "AI Assistant"
+        }:</strong> ${content}</p>`;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      document
+        .getElementById("send-btn")
+        .addEventListener("click", async () => {
+          const input = document.getElementById("chat-input");
+          const message = input.value.trim();
+          if (!message) return;
+          addMessage("user", message);
+          input.value = "";
+
+          const response = await fetch("{{ url_for('chatbot') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message, history: conversationHistory }),
+          });
+          const result = await response.json();
+          addMessage("assistant", result.response);
+          conversationHistory = result.history;
+        });
+
+      document
+        .getElementById("chat-input")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") document.getElementById("send-btn").click();
+        });
+    </script>
+    <style>
+      .animate-slide-in {
+        animation: slideIn 0.3s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateY(10px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  </body>
+</html>

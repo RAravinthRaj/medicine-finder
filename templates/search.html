@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medicine Finder - Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        color: white;
+      }
+      .toast-success {
+        background-color: #10b981;
+      }
+      .toast-error {
+        background-color: #ef4444;
+      }
+      .spinner {
+        display: none;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 font-inter">
+    <nav class="bg-blue-700 text-white sticky top-0 z-50 shadow-lg">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <h1 class="text-2xl font-bold tracking-tight">Medicine Finder</h1>
+        <div class="space-x-6 flex items-center">
+          <a
+            href="{{ url_for('index') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Home</a
+          >
+          <a
+            href="{{ url_for('search_medicine') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Search</a
+          >
+          <a
+            href="{{ url_for('chatbot') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Chatbot</a
+          >
+          <a
+            href="{{ url_for('cart') }}"
+            class="hover:text-blue-200 transition duration-300 relative"
+          >
+            Cart
+            <span
+              id="cart-count"
+              class="absolute -top-2 -right-4 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+              >0</span
+            >
+          </a>
+          {% if current_user.is_authenticated %}
+          <a
+            href="{{ url_for('profile') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >{{ current_user.email }}</a
+          >
+          <a
+            href="{{ url_for('logout') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Logout</a
+          >
+          {% if current_user.is_admin %}
+          <a
+            href="{{ url_for('admin') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Admin</a
+          >
+          {% endif %} {% else %}
+          <a
+            href="{{ url_for('login') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Login</a
+          >
+          <a
+            href="{{ url_for('signup') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Signup</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    <div class="container mx-auto py-12 px-4">
+      <h2 class="text-4xl font-extrabold text-blue-700 text-center mb-8">
+        Search Medicines
+      </h2>
+      <form id="search-form" class="max-w-xl mx-auto mb-12">
+        <div
+          class="flex items-center border-2 border-blue-200 rounded-full overflow-hidden"
+        >
+          <input
+            type="text"
+            id="medicine_name"
+            name="medicine_name"
+            placeholder="Enter medicine name"
+            class="flex-1 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
+          />
+          <button
+            type="submit"
+            class="bg-blue-600 text-white px-6 py-4 hover:bg-blue-700 transition duration-300 flex items-center"
+          >
+            <span id="search-btn-text">Search</span>
+            <span id="search-spinner" class="spinner ml-2"></span>
+          </button>
+        </div>
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label
+              for="min_price"
+              class="block text-gray-700 font-semibold mb-2"
+              >Min Price</label
+            >
+            <input
+              type="number"
+              id="min_price"
+              name="min_price"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              for="max_price"
+              class="block text-gray-700 font-semibold mb-2"
+              >Max Price</label
+            >
+            <input
+              type="number"
+              id="max_price"
+              name="max_price"
+              min="0"
+              step="0.01"
+              placeholder="100.00"
+              class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              for="min_stock"
+              class="block text-gray-700 font-semibold mb-2"
+              >Min Stock</label
+            >
+            <input
+              type="number"
+              id="min_stock"
+              name="min_stock"
+              min="0"
+              placeholder="0"
+              class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </form>
+      <div
+        id="results"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      ></div>
+      <div id="pagination" class="flex justify-center space-x-4 mt-6"></div>
+    </div>
+    <footer
+      class="bg-blue-900 text-white text-center py-6 fixed bottom-0 left-0 w-full shadow-md"
+    >
+      <p>&copy; 2025 Medicine Finder. All rights reserved.</p>
+    </footer>
+    <div id="toast" class="toast hidden"></div>
+    <script>
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      function updateCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCount();
+      }
+      function updateCartCount() {
+        document.getElementById("cart-count").textContent = cart.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+      }
+      function addToCart(medicine) {
+        const existingItem = cart.find((item) => item.id === medicine.id);
+        if (existingItem) {
+          if (existingItem.quantity < medicine.quantity) {
+            existingItem.quantity += 1;
+            showToast(`${medicine.name} quantity updated in cart!`, "success");
+          } else {
+            showToast(
+              `Cannot add more ${medicine.name}. Only ${medicine.quantity} in stock.`,
+              "error"
+            );
+            return;
+          }
+        } else {
+          cart.push({
+            id: medicine.id,
+            name: medicine.name,
+            price: medicine.price,
+            stock: medicine.quantity,
+            quantity: 1,
+          });
+          showToast(`${medicine.name} added to cart!`, "success");
+        }
+        updateCart();
+      }
+      async function searchMedicines(page = 1) {
+        const medicineName = document.getElementById("medicine_name").value;
+        const minPrice = document.getElementById("min_price").value;
+        const maxPrice = document.getElementById("max_price").value;
+        const minStock = document.getElementById("min_stock").value;
+        const searchBtnText = document.getElementById("search-btn-text");
+        const searchSpinner = document.getElementById("search-spinner");
+        searchBtnText.classList.add("hidden");
+        searchSpinner.style.display = "block";
+        try {
+          const response = await fetch('{{ url_for("search_medicine") }}', {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `medicine_name=${encodeURIComponent(
+              medicineName
+            )}&min_price=${minPrice}&max_price=${maxPrice}&min_stock=${minStock}&page=${page}`,
+          });
+          const data = await response.json();
+          const resultsDiv = document.getElementById("results");
+          resultsDiv.innerHTML = "";
+          if (data.results.length === 0) {
+            resultsDiv.innerHTML =
+              '<p class="text-center text-gray-600 text-lg">No medicines found.</p>';
+          } else {
+            data.results.forEach((medicine) => {
+              const card = document.createElement("div");
+              card.className =
+                "bg-white p-6 rounded-xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition duration-300";
+              card.innerHTML = `
+                <h3 class="text-xl font-bold text-blue-700 mb-2">${
+                  medicine.name
+                }</h3>
+                <p class="text-gray-600 mb-1">Price: ₹${medicine.price.toFixed(
+                  2
+                )}</p>
+                <p class="text-gray-600 mb-4">Stock: ${medicine.quantity}${
+                medicine.quantity <= 5
+                  ? ' <span class="text-red-600 font-semibold">(Low Stock!)</span>'
+                  : ""
+              }</p>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition duration-300 w-full" onclick='addToCart(${JSON.stringify(
+                  medicine
+                )})'>Add to Cart</button>
+              `;
+              resultsDiv.appendChild(card);
+            });
+          }
+          const paginationDiv = document.getElementById("pagination");
+          paginationDiv.innerHTML = "";
+          if (data.has_prev) {
+            const prevBtn = document.createElement("button");
+            prevBtn.className =
+              "bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700";
+            prevBtn.textContent = "Previous";
+            prevBtn.onclick = () => searchMedicines(data.page - 1);
+            paginationDiv.appendChild(prevBtn);
+          }
+          if (data.has_next) {
+            const nextBtn = document.createElement("button");
+            nextBtn.className =
+              "bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700";
+            nextBtn.textContent = "Next";
+            nextBtn.onclick = () => searchMedicines(data.page + 1);
+            paginationDiv.appendChild(nextBtn);
+          }
+        } catch (error) {
+          showToast("Search failed: " + error.message, "error");
+        } finally {
+          searchBtnText.classList.remove("hidden");
+          searchSpinner.style.display = "none";
+        }
+      }
+      document.getElementById("search-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        searchMedicines();
+      });
+      function showToast(message, type) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.className = `toast ${
+          type === "success" ? "toast-success" : "toast-error"
+        }`;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 3000);
+      }
+      window.addEventListener("load", updateCartCount);
+      window.addEventListener("storage", updateCartCount);
+    </script>
+  </body>
+</html>

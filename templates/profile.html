@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medicine Finder - Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        color: white;
+      }
+      .toast-success {
+        background-color: #10b981;
+      }
+      .toast-error {
+        background-color: #ef4444;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 font-inter">
+    <nav class="bg-blue-700 text-white sticky top-0 z-50 shadow-lg">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <h1 class="text-2xl font-bold tracking-tight">Medicine Finder</h1>
+        <div class="space-x-6 flex items-center">
+          <a
+            href="{{ url_for('index') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Home</a
+          >
+          <a
+            href="{{ url_for('search_medicine') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Search</a
+          >
+          <a
+            href="{{ url_for('chatbot') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Chatbot</a
+          >
+          <a
+            href="{{ url_for('cart') }}"
+            class="hover:text-blue-200 transition duration-300 relative"
+          >
+            Cart
+            <span
+              id="cart-count"
+              class="absolute -top-2 -right-4 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+              >0</span
+            >
+          </a>
+          <a
+            href="{{ url_for('profile') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >{{ current_user.email }}</a
+          >
+          <a
+            href="{{ url_for('logout') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Logout</a
+          >
+          {% if current_user.is_admin %}
+          <a
+            href="{{ url_for('admin') }}"
+            class="hover:text-blue-200 transition duration-300"
+            >Admin</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    <div class="container mx-auto py-12 px-4">
+      <h2 class="text-4xl font-extrabold text-blue-700 text-center mb-8">
+        Your Profile
+      </h2>
+      <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-xl font-bold text-blue-700 mb-4">User Information</h3>
+        <p class="text-gray-600 mb-4">Email: {{ current_user.email }}</p>
+        <h3 class="text-xl font-bold text-blue-700 mb-4">Order History</h3>
+        {% if orders %}
+        <div class="space-y-4">
+          {% for order in orders %}
+          <div class="bg-gray-100 p-4 rounded-lg">
+            <p class="text-gray-700">
+              Order #{{ order.id }} - {{ order.date.strftime('%Y-%m-%d
+              %H:%M:%S') }}
+            </p>
+            <p class="text-gray-700">Total: ₹{{ order.total|round(2) }}</p>
+            <ul class="list-disc list-inside text-gray-600">
+              {% for item in order.items %}
+              <li>
+                {{ item.medicine.name }}: {{ item.quantity }} unit(s) @ ₹{{
+                item.price|round(2) }}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">No orders yet.</p>
+        {% endif %}
+      </div>
+    </div>
+    <footer
+      class="bg-blue-900 text-white text-center py-6 fixed bottom-0 left-0 w-full shadow-md"
+    >
+      <p>&copy; 2025 Medicine Finder. All rights reserved.</p>
+    </footer>
+    <div id="toast" class="toast hidden"></div>
+    <script>
+      function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'}`;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3000);
+      }
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            showToast('{{ message }}', '{{ category }}');
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        document.getElementById('cart-count').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+      }
+      window.addEventListener('load', updateCartCount);
+      window.addEventListener('storage', updateCartCount);
+    </script>
+  </body>
+</html>
