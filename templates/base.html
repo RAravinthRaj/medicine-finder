@@ -10,29 +10,24 @@
         theme: {
           extend: {
             colors: {
-              ink: "#1d2838",
-              mist: "#f6f1e8",
-              coral: "#ee6c4d",
-              teal: "#2a9d8f",
-              pine: "#1f5c57",
-              gold: "#f4a261",
+              ink: "#162033",
+              mist: "#f4f7fb",
+              coral: "#e76f51",
+              teal: "#3d7bfd",
+              pine: "#1f4db8",
+              gold: "#7aa7ff",
             },
             fontFamily: {
-              sans: ["Manrope", "sans-serif"],
-              display: ["Fraunces", "serif"],
+              sans: ["Plus Jakarta Sans", "sans-serif"],
+              display: ["Merriweather", "serif"],
             },
             boxShadow: {
-              soft: "0 22px 55px rgba(31, 92, 87, 0.12)",
+              soft: "0 16px 40px rgba(22, 32, 51, 0.08)",
             },
             animation: {
-              floaty: "floaty 12s ease-in-out infinite",
               rise: "rise 0.55s ease-out both",
             },
             keyframes: {
-              floaty: {
-                "0%, 100%": { transform: "translateY(0px) translateX(0px)" },
-                "50%": { transform: "translateY(-18px) translateX(8px)" },
-              },
               rise: {
                 "0%": { opacity: "0", transform: "translateY(20px)" },
                 "100%": { opacity: "1", transform: "translateY(0)" },
@@ -43,7 +38,7 @@
       };
     </script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -53,14 +48,11 @@
 
       body {
         background:
-          radial-gradient(circle at top left, rgba(244, 162, 97, 0.22), transparent 24%),
-          radial-gradient(circle at top right, rgba(42, 157, 143, 0.16), transparent 24%),
-          linear-gradient(180deg, #fcfaf5 0%, #f7f4ee 55%, #f1efe9 100%);
+          linear-gradient(180deg, #f7f9fd 0%, #f3f6fb 100%);
       }
 
       .glass-panel {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(14px);
+        background: rgba(255, 255, 255, 0.96);
       }
 
       .toast {
@@ -77,7 +69,7 @@
       }
 
       .toast-success {
-        background: linear-gradient(135deg, #2a9d8f, #1f5c57);
+        background: linear-gradient(135deg, #3d7bfd, #1f4db8);
       }
 
       .toast-error {
@@ -87,64 +79,58 @@
     {% block extra_head %}{% endblock %}
   </head>
   <body class="min-h-screen font-sans text-ink antialiased">
-    <div class="pointer-events-none fixed inset-0 overflow-hidden">
-      <div class="absolute left-[-4rem] top-20 h-44 w-44 rounded-full bg-gold/20 blur-3xl animate-floaty"></div>
-      <div class="absolute right-[-2rem] top-40 h-56 w-56 rounded-full bg-teal/20 blur-3xl animate-floaty"></div>
-      <div class="absolute bottom-10 left-1/3 h-32 w-32 rounded-full bg-coral/10 blur-3xl animate-floaty"></div>
-    </div>
-
     <div class="relative z-10">
-      <nav class="sticky top-0 z-50 border-b border-white/40 bg-white/75 backdrop-blur-xl">
+      <nav class="sticky top-0 z-50 border-b border-slate-200 bg-white/95">
         <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div class="flex items-center justify-between">
             <a href="{{ url_for('main.index') }}" class="flex items-center gap-3">
-              <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-pine text-lg font-extrabold text-white shadow-soft">
+              <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-pine text-lg font-extrabold text-white shadow-soft">
                 M
               </div>
               <div>
-                <p class="font-display text-2xl leading-none text-pine">Medicine Finder</p>
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-pine/55">
-                  Trusted care companion
+                <p class="text-xl font-extrabold leading-none text-pine">Medicine Finder</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  Medicine search
                 </p>
               </div>
             </a>
             <button
               id="mobile-nav-toggle"
               type="button"
-              class="rounded-2xl border border-pine/10 bg-white px-3 py-2 text-sm font-semibold text-pine lg:hidden"
+              class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-pine lg:hidden"
             >
               Menu
             </button>
           </div>
           <div
             id="mobile-nav"
-            class="hidden flex-col gap-3 rounded-3xl border border-pine/10 bg-white/80 p-4 text-sm font-semibold text-pine shadow-soft lg:flex lg:flex-row lg:items-center lg:gap-2 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none"
+            class="hidden flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700 shadow-soft lg:flex lg:flex-row lg:items-center lg:gap-2 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none"
           >
-            <a href="{{ url_for('main.index') }}" class="rounded-full px-4 py-2 hover:bg-pine/5">Home</a>
-            <a href="{{ url_for('medicine.search_medicine') }}" class="rounded-full px-4 py-2 hover:bg-pine/5">Search</a>
-            <a href="{{ url_for('medicine.chatbot') }}" class="rounded-full px-4 py-2 hover:bg-pine/5">Chatbot</a>
-            <a href="{{ url_for('medicine.cart') }}" class="rounded-full px-4 py-2 hover:bg-pine/5">
+            <a href="{{ url_for('main.index') }}" class="rounded-lg px-4 py-2 hover:bg-slate-100">Home</a>
+            <a href="{{ url_for('medicine.search_medicine') }}" class="rounded-lg px-4 py-2 hover:bg-slate-100">Search</a>
+            <a href="{{ url_for('medicine.chatbot') }}" class="rounded-lg px-4 py-2 hover:bg-slate-100">Chatbot</a>
+            <a href="{{ url_for('medicine.cart') }}" class="rounded-lg px-4 py-2 hover:bg-slate-100">
               Cart
               <span
                 id="cart-count"
-                class="ml-2 inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-coral px-2 text-xs font-bold text-white"
+                class="ml-2 inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-pine px-2 text-xs font-bold text-white"
               >
                 0
               </span>
             </a>
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('auth.profile') }}" class="rounded-full px-4 py-2 hover:bg-pine/5">
+            <a href="{{ url_for('auth.profile') }}" class="rounded-lg px-4 py-2 hover:bg-slate-100">
               {{ current_user.email }}
             </a>
-            <a href="{{ url_for('auth.logout') }}" class="rounded-full px-4 py-2 hover:bg-pine/5">Logout</a>
+            <a href="{{ url_for('auth.logout') }}" class="rounded-lg px-4 py-2 hover:bg-slate-100">Logout</a>
             {% if current_user.is_admin %}
-            <a href="{{ url_for('medicine.admin') }}" class="rounded-full bg-pine px-4 py-2 text-white hover:bg-pine/90">
+            <a href="{{ url_for('medicine.admin') }}" class="rounded-lg bg-pine px-4 py-2 text-white hover:bg-pine/90">
               Admin
             </a>
             {% endif %}
             {% else %}
-            <a href="{{ url_for('auth.login') }}" class="rounded-full px-4 py-2 hover:bg-pine/5">Login</a>
-            <a href="{{ url_for('auth.signup') }}" class="rounded-full bg-pine px-4 py-2 text-white hover:bg-pine/90">Signup</a>
+            <a href="{{ url_for('auth.login') }}" class="rounded-lg px-4 py-2 hover:bg-slate-100">Login</a>
+            <a href="{{ url_for('auth.signup') }}" class="rounded-lg bg-pine px-4 py-2 text-white hover:bg-pine/90">Signup</a>
             {% endif %}
           </div>
         </div>
@@ -154,9 +140,9 @@
         {% block content %}{% endblock %}
       </main>
 
-      <footer class="border-t border-pine/10 bg-white/70">
-        <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm text-pine/70 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <p>Medicine Finder helps people search stock, manage carts, and get guided support.</p>
+      <footer class="border-t border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm text-slate-600 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+          <p>Search, cart, and orders.</p>
           <p>&copy; 2026 Medicine Finder</p>
         </div>
       </footer>

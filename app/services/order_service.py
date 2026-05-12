@@ -6,6 +6,20 @@ def get_user_orders(user_id):
     return Order.query.filter_by(user_id=user_id).order_by(Order.date.desc()).all()
 
 
+def summarize_orders_for_agent(orders):
+    if not orders:
+        return "Order history:\nNo orders found."
+
+    recent_orders = orders[:3]
+    lines = []
+    for order in recent_orders:
+        item_count = sum(item.quantity for item in order.items)
+        lines.append(
+            f"- Order #{order.id}: {item_count} unit(s), total Rs. {order.total:.2f}, date {order.date.strftime('%Y-%m-%d')}"
+        )
+    return "Order history:\n" + "\n".join(lines)
+
+
 def create_order(user_id, cart_items):
     if not cart_items:
         return {"error": "Cart is empty"}, 400

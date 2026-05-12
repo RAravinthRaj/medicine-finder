@@ -5,24 +5,21 @@
 {% block content %}
 <section class="animate-rise">
   <div class="mb-8">
-    <p class="text-sm font-semibold uppercase tracking-[0.35em] text-teal">Profile</p>
-    <h1 class="mt-3 font-display text-5xl text-pine">Your account and order history.</h1>
+    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-pine">Profile</p>
+    <h1 class="mt-3 text-5xl font-extrabold tracking-tight text-ink">Account and orders.</h1>
   </div>
 
   <div class="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
     <aside class="glass-panel rounded-[2rem] border border-white/70 p-7 shadow-soft">
       <p class="text-sm font-semibold uppercase tracking-[0.3em] text-pine/45">User information</p>
-      <h2 class="mt-4 font-display text-3xl text-pine">{{ current_user.email }}</h2>
-      <p class="mt-4 leading-7 text-pine/75">
-        This dashboard keeps your account identity and previous orders easy to review.
-      </p>
+      <h2 class="mt-4 text-3xl font-bold text-ink">{{ current_user.email }}</h2>
     </aside>
 
     <div class="glass-panel rounded-[2rem] border border-white/70 p-7 shadow-soft">
       <div class="mb-6 flex items-center justify-between">
         <div>
           <p class="text-sm font-semibold uppercase tracking-[0.3em] text-pine/45">Orders</p>
-          <h2 class="mt-3 font-display text-4xl text-pine">Order History</h2>
+          <h2 class="mt-3 text-3xl font-bold text-ink">Order History</h2>
         </div>
       </div>
 
@@ -51,8 +48,7 @@
       </div>
       {% else %}
       <div class="rounded-[1.75rem] border border-dashed border-pine/15 bg-white/50 p-10 text-center">
-        <p class="font-display text-3xl text-pine">No orders yet</p>
-        <p class="mt-3 text-pine/70">Once you check out medicines, they will appear here.</p>
+        <p class="text-3xl font-bold text-ink">No orders yet</p>
       </div>
       {% endif %}
     </div>

@@ -46,6 +46,15 @@ class Chat(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class KnowledgeDocument(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    doc_type = db.Column(db.String(50), nullable=False, default="faq")
+    source = db.Column(db.String(200), nullable=False, default="internal")
+    embedding = db.Column(db.Text, nullable=True)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

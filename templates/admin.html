@@ -5,14 +5,15 @@
 {% block content %}
 <section class="animate-rise">
   <div class="mb-8">
-    <p class="text-sm font-semibold uppercase tracking-[0.35em] text-coral">Admin dashboard</p>
-    <h1 class="mt-3 font-display text-5xl text-pine">Manage the medicine catalog with less clutter.</h1>
+    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-pine">Admin</p>
+    <h1 class="mt-3 text-5xl font-extrabold tracking-tight text-ink">Manage medicines.</h1>
   </div>
 
   <div class="grid gap-6 xl:grid-cols-[0.75fr_1.25fr]">
-    <div class="glass-panel rounded-[2rem] border border-white/70 p-7 shadow-soft">
+    <div class="space-y-6">
+      <div class="glass-panel rounded-[2rem] border border-white/70 p-7 shadow-soft">
       <p class="text-sm font-semibold uppercase tracking-[0.3em] text-pine/45">Add medicine</p>
-      <h2 class="mt-3 font-display text-4xl text-pine">Create inventory entries</h2>
+      <h2 class="mt-3 text-3xl font-bold text-ink">Add medicine</h2>
       <form method="POST" class="mt-6 space-y-4">
         <input type="hidden" name="action" value="add" />
         <div>
@@ -31,12 +32,45 @@
           Add Medicine
         </button>
       </form>
+      </div>
+
+      <div class="glass-panel rounded-[2rem] border border-white/70 p-7 shadow-soft">
+        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-pine/45">Scraping</p>
+        <h2 class="mt-3 text-3xl font-bold text-ink">Import data</h2>
+        <form method="POST" class="mt-6 space-y-4">
+          <input type="hidden" name="action" value="scrape_url" />
+          <div>
+            <label for="source_url" class="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-pine/55">Source URL</label>
+            <input type="text" id="source_url" name="source_url" placeholder="https://example.com/medicines" class="w-full rounded-2xl border border-pine/10 bg-white px-4 py-4 outline-none transition focus:border-teal focus:ring-4 focus:ring-teal/10" />
+          </div>
+          <button type="submit" class="w-full rounded-full border border-pine/10 bg-white px-6 py-4 font-bold text-pine shadow-soft transition hover:bg-pine/5">
+            Scrape URL
+          </button>
+        </form>
+        <form method="POST" class="mt-4">
+          <input type="hidden" name="action" value="scrape_sample" />
+          <button type="submit" class="w-full rounded-full bg-pine px-6 py-4 font-bold text-white shadow-soft transition hover:bg-pine/90">
+            Import Sample Source
+          </button>
+        </form>
+      </div>
+
+      <div class="glass-panel rounded-[2rem] border border-white/70 p-7 shadow-soft">
+        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-pine/45">Knowledge</p>
+        <h2 class="mt-3 text-3xl font-bold text-ink">Vector index</h2>
+        <form method="POST" class="mt-6">
+          <input type="hidden" name="action" value="reindex_knowledge" />
+          <button type="submit" class="w-full rounded-full border border-pine/10 bg-white px-6 py-4 font-bold text-pine shadow-soft transition hover:bg-pine/5">
+            Rebuild Embeddings
+          </button>
+        </form>
+      </div>
     </div>
 
     <div class="space-y-5">
       <div class="glass-panel rounded-[2rem] border border-white/70 p-7 shadow-soft">
         <p class="text-sm font-semibold uppercase tracking-[0.3em] text-pine/45">Manage medicines</p>
-        <h2 class="mt-3 font-display text-4xl text-pine">Current catalog</h2>
+        <h2 class="mt-3 text-3xl font-bold text-ink">Catalog</h2>
       </div>
 
       {% for medicine in medicines %}

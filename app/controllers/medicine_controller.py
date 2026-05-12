@@ -1,7 +1,9 @@
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from ..services.chat_service import get_ai_response, get_user_chats, save_chat_message
+from ..services.agent_service import run_agentic_chat
+from ..services.chat_service import get_user_chats, save_chat_message
+from ..services.knowledge_service import rebuild_knowledge_embeddings
 from ..services.medicine_service import (
     add_medicine,
     delete_medicine,
@@ -10,6 +12,7 @@ from ..services.medicine_service import (
     update_medicine,
 )
 from ..services.order_service import create_order
+from ..services.scraper_service import scrape_and_import_medicines
 
 medicine_bp = Blueprint("medicine", __name__)
 
@@ -39,6 +42,25 @@ def admin():
             )
         elif action == "delete":
             delete_medicine(int(request.form.get("id")))
+        elif action == "scrape_sample":
+            result = scrape_and_import_medicines("sample")
+            flash(f"Imported {result['count']} medicines from sample source.", "success")
+            return redirect(url_for("medicine.admin"))
+        elif action == "scrape_url":
+            source_url = request.form.get("source_url", "").strip()
+            if not source_url:
+                flash("Source URL is required.", "error")
+                return redirect(url_for("medicine.admin"))
+            try:
+                result = scrape_and_import_medicines(source_url)
+                flash(f"Imported {result['count']} medicines from source.", "success")
+            except Exception as error:
+                flash(f"Scrape failed: {error}", "error")
+            return redirect(url_for("medicine.admin"))
+        elif action == "reindex_knowledge":
+            count = rebuild_knowledge_embeddings()
+            flash(f"Rebuilt embeddings for {count} knowledge documents.", "success")
+            return redirect(url_for("medicine.admin"))
 
         flash("Medicine updated successfully.", "success")
         return redirect(url_for("medicine.admin"))
@@ -83,20 +105,34 @@ def chatbot():
         payload = request.get_json() or {}
         user_input = payload.get("message")
         conversation_history = payload.get("history", [])
+        cart_items = payload.get("cart", [])
+
         try:
-            response = get_ai_response(user_input, conversation_history)
+            agent_result = run_agentic_chat(
+                user_id=current_user.id,
+                user_input=user_input,
+                cart_items=cart_items,
+            )
         except ValueError as error:
             return jsonify({"error": str(error)}), 503
         except Exception:
             return jsonify({"error": "Chat service is temporarily unavailable."}), 500
 
+        response = agent_result["response"]
         save_chat_message(current_user.id, user_input, response)
 
         updated_history = conversation_history + [
             {"role": "user", "content": user_input},
             {"role": "assistant", "content": response},
         ]
-        return jsonify({"response": response, "history": updated_history})
+        return jsonify(
+            {
+                "response": response,
+                "history": updated_history,
+                "plan": agent_result["plan"],
+                "tool_outputs": agent_result["tool_outputs"],
+            }
+        )
 
     chats = get_user_chats(current_user.id)
     return render_template("chatbot.html", chats=chats)

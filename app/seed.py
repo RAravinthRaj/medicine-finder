@@ -2,6 +2,7 @@ import bcrypt
 
 from .extensions import db
 from .models import Medicine, User
+from .services.knowledge_service import seed_knowledge_documents
 
 
 def seed_data():
@@ -36,3 +37,4 @@ def seed_data():
         db.session.add(admin)
 
     db.session.commit()
+    seed_knowledge_documents()
